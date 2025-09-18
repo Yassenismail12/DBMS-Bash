@@ -14,7 +14,7 @@ script_dir=$(pwd)
 show_main_menu() {
     clear
     echo "=================================="
-    echo "Team 1"
+    echo "Team 2"
     echo "=================================="
     echo "   BASH DBMS - MAIN MENU   "
     echo "=================================="
@@ -596,4 +596,5 @@ main() {
         esac
     done
 }
+
 main
