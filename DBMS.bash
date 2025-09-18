@@ -13,26 +13,26 @@ script_dir=$(pwd)
 # display the main menu
 show_main_menu() {
     clear
-    echo "=================================="
+    echo "======================================="
     echo "Team 2"
-    echo "=================================="
+    echo "======================================="
     echo "   BASH DBMS - MAIN MENU   "
-    echo "=================================="
+    echo "======================================="
     echo "1. Create Database"
     echo "2. List Databases"
     echo "3. Connect To Database"
     echo "4. Drop Database"
     echo "5. Exit"
-    echo "=================================="
+    echo "======================================"
     echo -n "Please select an option (1-5): "
 }
 
 # display database menu (when connected to a database)
 show_database_menu() {
     clear
-    echo "========================================"
+    echo "==========================================="
     echo "   DATABASE: $current_database"
-    echo "========================================"
+    echo "============================================"
     echo "1. Create Table"
     echo "2. List Tables"
     echo "3. Drop Table"
@@ -41,7 +41,7 @@ show_database_menu() {
     echo "6. Delete From Table"
     echo "7. Update Table"
     echo "8. Back to Main Menu"
-    echo "========================================"
+    echo "==============================================="
     echo -n "Please select an option (1-8): "
 }
 
@@ -598,3 +598,4 @@ main() {
 }
 
 main
+
