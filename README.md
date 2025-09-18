@@ -80,8 +80,8 @@ Each table is a structured text file with metadata, schema, and rows.
 # Primary Key: id
 id|name|email|age
 int|str|str|int
-1|Mostafa Elelemy|john@example.com|25
-2|Yassen mohamed|jane@example.com|30
+1|Mostafa Elelemy|Elelemy@example.com|25
+2|Yassen mohamed|Yassen@example.com|30
 ```
 
 * **Line 1–2** → Metadata (`# Table`, `# Primary Key`)
