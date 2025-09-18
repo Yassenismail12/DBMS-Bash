@@ -13,11 +13,11 @@ script_dir=$(pwd)
 # display the main menu
 show_main_menu() {
     clear
-    echo "========================================"
+    echo "======================================"
     echo "Team 2"
-    echo "========================================"
+    echo "====================================="
     echo "   BASH DBMS - MAIN MENU   "
-    echo "======================================="
+    echo "===================================="
     echo "1. Create Database"
     echo "2. List Databases"
     echo "3. Connect To Database"
@@ -598,4 +598,5 @@ main() {
 }
 
 main
+
 
