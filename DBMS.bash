@@ -1,212 +1,225 @@
 #!/bin/bash
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-# Global variables
 current_database=""
 script_dir=$(pwd) 
 
-# display the main menu
+if ! command -v zenity &> /dev/null; then
+    echo "Error: Zenity is not installed. Please install it first:"
+    echo "Ubuntu/Debian: sudo apt-get install zenity"
+    echo "CentOS/RHEL: sudo yum install zenity"
+    echo "Arch Linux: sudo pacman -S zenity"
+    exit 1
+fi
+
 show_main_menu() {
-    clear
-    echo "======================================"
-    echo "Team 2"
-    echo "====================================="
-    echo "   BASH DBMS - MAIN MENU   "
-    echo "===================================="
-    echo "1. Create Database"
-    echo "2. List Databases"
-    echo "3. Connect To Database"
-    echo "4. Drop Database"
-    echo "5. Exit"
-    echo "=================================="
-    echo -n "Please select an option (1-5): "
+    zenity --list \
+        --title="Bash DBMS - Main Menu" \
+        --text="Team 2 - BASH Database Management System" \
+        --column="Option" --column="Description" \
+        --width=500 --height=350 \
+        "1" "Create Database" \
+        "2" "List Databases" \
+        "3" "Connect To Database" \
+        "4" "Drop Database" \
+        "5" "Exit" \
+        2>/dev/null
 }
 
-# display database menu (when connected to a database)
 show_database_menu() {
-    clear
-    echo "========================================"
-    echo "   DATABASE: $current_database"
-    echo "========================================"
-    echo "1. Create Table"
-    echo "2. List Tables"
-    echo "3. Drop Table"
-    echo "4. Insert into Table"
-    echo "5. Select From Table"
-    echo "6. Delete From Table"
-    echo "7. Update Table"
-    echo "8. Back to Main Menu"
-    echo "========================================"
-    echo -n "Please select an option (1-8): "
+    zenity --list \
+        --title="Database Menu - $current_database" \
+        --text="Connected to Database: $current_database" \
+        --column="Option" --column="Description" \
+        --width=500 --height=400 \
+        "1" "Create Table" \
+        "2" "List Tables" \
+        "3" "Drop Table" \
+        "4" "Insert into Table" \
+        "5" "Select From Table" \
+        "6" "Delete From Table" \
+        "7" "Update Table" \
+        "8" "Back to Main Menu" \
+        2>/dev/null
 }
 
-# create a new database
 create_database() {
-    echo ""
-    echo -e "${BLUE}Creating a new database...${NC}"
-    echo -n "Enter database name: "
-    read db_name
+    db_name=$(zenity --entry \
+        --title="Create Database" \
+        --text="Enter database name:" \
+        --width=300 2>/dev/null)
     
-    if [ -z "$db_name" ]; then
-        echo -e "${RED}Error: Database name cannot be empty!${NC}"
-        read -p "Press Enter to continue..."
+    if [ $? -ne 0 ] || [ -z "$db_name" ]; then
         return
     fi
     
     if [ -d "$script_dir/$db_name" ]; then
-        echo -e "${RED}Error: Database '$db_name' already exists!${NC}"
+        zenity --error --text="Error: Database '$db_name' already exists!" --width=300
     else
         mkdir "$script_dir/$db_name"
-        echo -e "${GREEN}Database '$db_name' created successfully!${NC}"
+        zenity --info --text="Database '$db_name' created successfully!" --width=300
     fi
-    
-    read -p "Press Enter to continue..."
 }
 
-# Function to list all databases
 list_databases() {
-    echo ""
-    echo -e "${BLUE}Available Databases:${NC}"
-    echo "============================="
+    db_list=""
     db_count=0
+    
     for dir in */; do
         if [ -d "$dir" ]; then
             db_count=$((db_count + 1))
-            echo "$db_count. ${dir%/}" 
+            db_list="$db_list${dir%/}\n"
         fi
     done
+    
     if [ $db_count -eq 0 ]; then
-        echo "No databases found!"
+        zenity --info --text="No databases found!" --width=300
+    else
+        zenity --info --title="Available Databases" \
+            --text="Available Databases:\n\n$db_list" \
+            --width=400 --height=300
     fi
-    read -p "Press Enter to continue..."
 }
 
-# connect to a database
 connect_database() {
-    echo ""
-    echo -e "${BLUE}Connect to Database:${NC}"
-    echo -n "Enter database name: "
-    read db_name
+    db_name=$(zenity --entry \
+        --title="Connect to Database" \
+        --text="Enter database name:" \
+        --width=300 2>/dev/null)
+    
+    if [ $? -ne 0 ] || [ -z "$db_name" ]; then
+        return
+    fi
+    
     if [ -d "$script_dir/$db_name" ]; then
         current_database="$db_name"
-        echo -e "${GREEN}Connected to database '$db_name'${NC}"
-        read -p "Press Enter to continue..."
-
+        zenity --info --text="Connected to database '$db_name'" --width=300
+        
         while true; do
-            show_database_menu
-            read choice
+            choice=$(show_database_menu)
+            if [ $? -ne 0 ]; then
+                current_database=""
+                break
+            fi
             
             case $choice in
-                1) create_table ;;
-                2) list_tables ;;
-                3) drop_table ;;
-                4) insert_into_table ;;
-                5) select_from_table ;;
-                6) delete_from_table ;;
-                7) update_table ;;
-                8) current_database=""; break ;;
-                *) echo -e "${RED}Invalid option!${NC}"; read -p "Press Enter to continue..." ;;
+                "1") create_table ;;
+                "2") list_tables ;;
+                "3") drop_table ;;
+                "4") insert_into_table ;;
+                "5") select_from_table ;;
+                "6") delete_from_table ;;
+                "7") update_table ;;
+                "8") current_database=""; break ;;
+                *) zenity --error --text="Invalid option!" --width=300 ;;
             esac
         done
     else
-        echo -e "${RED}Error: Database '$db_name' does not exist!${NC}"
-        read -p "Press Enter to continue..."
+        zenity --error --text="Error: Database '$db_name' does not exist!" --width=300
     fi
 }
 
-# drop/delete a database
 drop_database() {
-    echo ""
-    echo -e "${BLUE}Drop Database:${NC}"
-    echo -n "Enter database name to delete: "
-    read db_name
+    db_name=$(zenity --entry \
+        --title="Drop Database" \
+        --text="Enter database name to delete:" \
+        --width=300 2>/dev/null)
     
-    if [ -d "$script_dir/$db_name" ]; then
-        echo -e "${RED}WARNING: This will delete the entire database and all its data!${NC}"
-        echo -n "Are you sure? (yes/no): "
-        read confirm
-        
-        if [ "$confirm" = "yes" ]; then
-            rm -rf "$script_dir/$db_name"
-            echo -e "${GREEN}Database '$db_name' deleted successfully!${NC}"
-        else
-            echo "Database deletion cancelled."
-        fi
-    else
-        echo -e "${RED}Error: Database '$db_name' does not exist!${NC}"
+    if [ $? -ne 0 ] || [ -z "$db_name" ]; then
+        return
     fi
     
-    read -p "Press Enter to continue..."
+    if [ -d "$script_dir/$db_name" ]; then
+        if zenity --question \
+            --text="WARNING: This will delete the entire database '$db_name' and all its data!\n\nAre you sure you want to continue?" \
+            --width=400; then
+            rm -rf "$script_dir/$db_name"
+            zenity --info --text="Database '$db_name' deleted successfully!" --width=300
+        fi
+    else
+        zenity --error --text="Error: Database '$db_name' does not exist!" --width=300
+    fi
 }
 
 create_table() {
-    echo ""
-    echo -e "${BLUE}Create Table in Database: $current_database${NC}"
-    echo -n "Enter table name: "
-    read table_name
+    table_name=$(zenity --entry \
+        --title="Create Table" \
+        --text="Enter table name:" \
+        --width=300 2>/dev/null)
     
-    if [ -z "$table_name" ]; then
-        echo -e "${RED}Error: Table name cannot be empty!${NC}"
-        read -p "Press Enter to continue..."
+    if [ $? -ne 0 ] || [ -z "$table_name" ]; then
         return
     fi
     
     if [ -f "$script_dir/$current_database/$table_name.txt" ]; then
-        echo -e "${RED}Error: Table '$table_name' already exists!${NC}"
-        read -p "Press Enter to continue..."
+        zenity --error --text="Error: Table '$table_name' already exists!" --width=300
         return
     fi
     
-    echo -n "Enter number of columns: "
-    read num_columns
+    num_columns=$(zenity --entry \
+        --title="Create Table" \
+        --text="Enter number of columns:" \
+        --width=300 2>/dev/null)
     
-    if ! [[ "$num_columns" =~ ^[0-9]+$ ]] || [ "$num_columns" -lt 1 ]; then
-        echo -e "${RED}Error: Invalid number of columns!${NC}"
-        read -p "Press Enter to continue..."
+    if [ $? -ne 0 ] || ! [[ "$num_columns" =~ ^[0-9]+$ ]] || [ "$num_columns" -lt 1 ]; then
+        zenity --error --text="Error: Invalid number of columns!" --width=300
         return
     fi
     
     column_names=()
     column_types=()
-    primary_key=""
-    echo ""
-    echo "Enter column details:"
+    
     for ((i=1; i<=num_columns; i++)); do
-        echo -n "Column $i name: "
-        read col_name
+        col_name=$(zenity --entry \
+            --title="Create Table" \
+            --text="Enter name for column $i:" \
+            --width=300 2>/dev/null)
+        
+        if [ $? -ne 0 ] || [ -z "$col_name" ]; then
+            return
+        fi
+        
         column_names+=("$col_name")
         
-        echo "Column $i data type:"
-        echo "1. int (integer)"
-        echo "2. str (string)"
-        echo -n "Choose (1 or 2): "
-        read col_type_choice
+        col_type=$(zenity --list \
+            --title="Create Table" \
+            --text="Select data type for column '$col_name':" \
+            --column="Type" --column="Description" \
+            --width=300 --height=200 \
+            "int" "Integer" \
+            "str" "String" 2>/dev/null)
         
-        if [ "$col_type_choice" = "1" ]; then
-            column_types+=("int")
-        else
-            column_types+=("str")
+        if [ $? -ne 0 ]; then
+            return
         fi
+        
+        column_types+=("$col_type")
     done
-    echo ""
-    echo "Available columns for primary key:"
-    for ((i=0; i<${#column_names[@]}; i++)); do
-        echo "$((i+1)). ${column_names[i]}"
-    done
-    echo -n "Choose primary key column number (or 0 for none): "
-    read pk_choice
     
-    if [ "$pk_choice" -gt 0 ] && [ "$pk_choice" -le "${#column_names[@]}" ]; then
-        primary_key="${column_names[$((pk_choice-1))]}"
+    pk_options=""
+    for ((i=0; i<${#column_names[@]}; i++)); do
+        pk_options="$pk_options FALSE ${column_names[i]}"
+    done
+    pk_options="$pk_options TRUE None"
+    
+    primary_key=$(zenity --list --radiolist \
+        --title="Primary Key Selection" \
+        --text="Select primary key column:" \
+        --column="Select" --column="Column" \
+        --width=300 --height=250 \
+        $pk_options 2>/dev/null)
+    
+    if [ $? -ne 0 ]; then
+        return
     fi
+    
+    if [ "$primary_key" = "None" ]; then
+        primary_key=""
+    fi
+    
     table_file="$script_dir/$current_database/$table_name.txt"
     echo "# Table: $table_name" > "$table_file"
     echo "# Primary Key: $primary_key" >> "$table_file"
+    
     header=""
     types_line=""
     for ((i=0; i<${#column_names[@]}; i++)); do
@@ -218,75 +231,72 @@ create_table() {
             types_line="$types_line|${column_types[i]}"
         fi
     done
+    
     echo "$header" >> "$table_file"
     echo "$types_line" >> "$table_file"
-
-    echo -e "${GREEN}Table '$table_name' created successfully!${NC}"
-    read -p "Press Enter to continue..."
+    
+    zenity --info --text="Table '$table_name' created successfully!" --width=300
 }
 
-# list all tables
 list_tables() {
-    echo ""
-    echo -e "${BLUE}Tables in Database: $current_database${NC}"
-    echo "=========================="
-    
+    table_list=""
     table_count=0
     
     for file in "$script_dir/$current_database"/*.txt; do
         if [ -f "$file" ]; then
             table_count=$((table_count + 1))
             table_name=$(basename "$file" .txt)
-            echo "$table_count. $table_name"
+            table_list="$table_list$table_name\n"
         fi
     done
     
     if [ $table_count -eq 0 ]; then
-        echo "No tables found in this database!"
+        zenity --info --text="No tables found in database '$current_database'!" --width=300
+    else
+        zenity --info --title="Tables in Database: $current_database" \
+            --text="Available Tables:\n\n$table_list" \
+            --width=400 --height=300
     fi
-    
-    read -p "Press Enter to continue..."
 }
 
-# drop/delete a table
 drop_table() {
-    echo ""
-    echo -e "${BLUE}Drop Table from Database: $current_database${NC}"
-    echo -n "Enter table name to delete: "
-    read table_name
+    table_name=$(zenity --entry \
+        --title="Drop Table" \
+        --text="Enter table name to delete:" \
+        --width=300 2>/dev/null)
+    
+    if [ $? -ne 0 ] || [ -z "$table_name" ]; then
+        return
+    fi
     
     table_file="$script_dir/$current_database/$table_name.txt"
     
     if [ -f "$table_file" ]; then
-        echo -e "${RED}WARNING: This will delete the table and all its data!${NC}"
-        echo -n "Are you sure? (yes/no): "
-        read confirm
-        
-        if [ "$confirm" = "yes" ]; then
+        if zenity --question \
+            --text="WARNING: This will delete table '$table_name' and all its data!\n\nAre you sure you want to continue?" \
+            --width=400; then
             rm "$table_file"
-            echo -e "${GREEN}Table '$table_name' deleted successfully!${NC}"
-        else
-            echo "Table deletion cancelled."
+            zenity --info --text="Table '$table_name' deleted successfully!" --width=300
         fi
     else
-        echo -e "${RED}Error: Table '$table_name' does not exist!${NC}"
+        zenity --error --text="Error: Table '$table_name' does not exist!" --width=300
     fi
-    
-    read -p "Press Enter to continue..."
 }
 
-# insert data into table
 insert_into_table() {
-    echo ""
-    echo -e "${BLUE}Insert Data into Table${NC}"
-    echo -n "Enter table name: "
-    read table_name
+    table_name=$(zenity --entry \
+        --title="Insert Data" \
+        --text="Enter table name:" \
+        --width=300 2>/dev/null)
+    
+    if [ $? -ne 0 ] || [ -z "$table_name" ]; then
+        return
+    fi
     
     table_file="$script_dir/$current_database/$table_name.txt"
     
     if [ ! -f "$table_file" ]; then
-        echo -e "${RED}Error: Table '$table_name' does not exist!${NC}"
-        read -p "Press Enter to continue..."
+        zenity --error --text="Error: Table '$table_name' does not exist!" --width=300
         return
     fi
     
@@ -297,27 +307,30 @@ insert_into_table() {
     IFS='|' read -ra header_array <<< "$headers"
     IFS='|' read -ra type_array <<< "$types"
     
-    echo ""
-    echo "Enter data for each column:"
-
     row_data=()
-
+    
     for ((i=0; i<${#header_array[@]}; i++)); do
         while true; do
-            echo -n "${header_array[i]} (${type_array[i]}): "
-            read value
+            value=$(zenity --entry \
+                --title="Insert Data" \
+                --text="Enter value for ${header_array[i]} (${type_array[i]}):" \
+                --width=300 2>/dev/null)
+            
+            if [ $? -ne 0 ]; then
+                return
+            fi
             
             if [ "${type_array[i]}" = "int" ]; then
                 if [[ "$value" =~ ^[0-9]+$ ]]; then
                     break
                 else
-                    echo -e "${RED}Error: Please enter a valid integer!${NC}"
+                    zenity --error --text="Please enter a valid integer!" --width=300
                 fi
             else
                 if [ ! -z "$value" ]; then
                     break
                 else
-                    echo -e "${RED}Error: Value cannot be empty!${NC}"
+                    zenity --error --text="Value cannot be empty!" --width=300
                 fi
             fi
         done
@@ -338,8 +351,7 @@ insert_into_table() {
             pk_value="${row_data[pk_index]}"
             
             if grep -q "|$pk_value|" "$table_file" 2>/dev/null || grep -q "^$pk_value|" "$table_file" 2>/dev/null || grep -q "|$pk_value$" "$table_file" 2>/dev/null; then
-                echo -e "${RED}Error: Primary key '$pk_value' already exists!${NC}"
-                read -p "Press Enter to continue..."
+                zenity --error --text="Error: Primary key '$pk_value' already exists!" --width=300
                 return
             fi
         fi
@@ -355,189 +367,193 @@ insert_into_table() {
     done
     
     echo "$row_string" >> "$table_file"
-    
-    echo -e "${GREEN}Data inserted successfully!${NC}"
-    read -p "Press Enter to continue..."
+    zenity --info --text="Data inserted successfully!" --width=300
 }
 
-# select/display data from table
 select_from_table() {
-    echo ""
-    echo -e "${BLUE}Select Data from Table${NC}"
-    echo -n "Enter table name: "
-    read table_name
+    table_name=$(zenity --entry \
+        --title="Select Data" \
+        --text="Enter table name:" \
+        --width=300 2>/dev/null)
+    
+    if [ $? -ne 0 ] || [ -z "$table_name" ]; then
+        return
+    fi
     
     table_file="$script_dir/$current_database/$table_name.txt"
     
     if [ ! -f "$table_file" ]; then
-        echo -e "${RED}Error: Table '$table_name' does not exist!${NC}"
-        read -p "Press Enter to continue..."
+        zenity --error --text="Error: Table '$table_name' does not exist!" --width=300
         return
     fi
     
-    echo ""
-    echo -e "${GREEN}Data in table '$table_name':${NC}"
-    echo "=================================="
-    
     headers=$(sed -n '3p' "$table_file")
-    echo -e "${BLUE}$headers${NC}"
-    echo "=================================="
+    data_content=$(tail -n +5 "$table_file" | grep -v '^$')
+    data_rows=$(echo "$data_content" | wc -l)
     
-    row_count=0
-    tail -n +5 "$table_file" | while read -r line; do
-        if [ ! -z "$line" ]; then
-            echo "$line"
-            row_count=$((row_count + 1))
-        fi
-    done
-    
-    data_rows=$(tail -n +5 "$table_file" | wc -l)
-    echo "=================================="
-    echo "Total rows: $data_rows"
-    
-    read -p "Press Enter to continue..."
+    if [ -z "$data_content" ]; then
+        zenity --info --text="Table '$table_name' is empty." --width=300
+    else
+        display_text="Headers: $headers\n\n$data_content\n\nTotal rows: $data_rows"
+        zenity --info --title="Data in Table: $table_name" \
+            --text="$display_text" \
+            --width=600 --height=400
+    fi
 }
 
-# delete data from table (simple version)
 delete_from_table() {
-    echo ""
-    echo -e "${BLUE}Delete Data from Table${NC}"
-    echo -n "Enter table name: "
-    read table_name
+    table_name=$(zenity --entry \
+        --title="Delete Data" \
+        --text="Enter table name:" \
+        --width=300 2>/dev/null)
+    
+    if [ $? -ne 0 ] || [ -z "$table_name" ]; then
+        return
+    fi
     
     table_file="$script_dir/$current_database/$table_name.txt"
     
     if [ ! -f "$table_file" ]; then
-        echo -e "${RED}Error: Table '$table_name' does not exist!${NC}"
-        read -p "Press Enter to continue..."
+        zenity --error --text="Error: Table '$table_name' does not exist!" --width=300
         return
     fi
     
-    echo ""
-    echo "Current data in table:"
     headers=$(sed -n '3p' "$table_file")
-    echo -e "${BLUE}$headers${NC}"
-    echo "=================================="
     
+    row_options=""
     row_num=1
-    tail -n +5 "$table_file" | while read -r line; do
+    while read -r line; do
         if [ ! -z "$line" ]; then
-            echo "$row_num. $line"
+            row_options="$row_options FALSE $row_num $line"
             row_num=$((row_num + 1))
         fi
-    done
+    done < <(tail -n +5 "$table_file")
     
-    echo ""
-    echo -n "Enter row number to delete (0 to cancel): "
-    read row_to_delete
-    
-    if [ "$row_to_delete" = "0" ]; then
-        echo "Delete operation cancelled."
-        read -p "Press Enter to continue..."
+    if [ -z "$row_options" ]; then
+        zenity --info --text="Table '$table_name' is empty." --width=300
         return
     fi
     
-    total_rows=$(tail -n +5 "$table_file" | grep -c .)
-    if ! [[ "$row_to_delete" =~ ^[0-9]+$ ]] || [ "$row_to_delete" -lt 1 ] || [ "$row_to_delete" -gt "$total_rows" ]; then
-        echo -e "${RED}Error: Invalid row number!${NC}"
-        read -p "Press Enter to continue..."
+    selected_row=$(zenity --list --radiolist \
+        --title="Delete Row" \
+        --text="Headers: $headers\n\nSelect row to delete:" \
+        --column="Select" --column="Row#" --column="Data" \
+        --width=700 --height=400 \
+        $row_options 2>/dev/null)
+    
+    if [ $? -ne 0 ] || [ -z "$selected_row" ]; then
         return
     fi
     
-    temp_file="/tmp/dbms_temp.txt"
-    head -4 "$table_file" > "$temp_file"
-    current_row=1
-    tail -n +5 "$table_file" | while read -r line; do
-        if [ ! -z "$line" ]; then
-            if [ "$current_row" -ne "$row_to_delete" ]; then
-                echo "$line" >> "$temp_file"
+    if zenity --question \
+        --text="Are you sure you want to delete row $selected_row?" \
+        --width=300; then
+        
+        temp_file="/tmp/dbms_temp.txt"
+        head -4 "$table_file" > "$temp_file"
+        current_row=1
+        
+        while read -r line; do
+            if [ ! -z "$line" ]; then
+                if [ "$current_row" -ne "$selected_row" ]; then
+                    echo "$line" >> "$temp_file"
+                fi
+                current_row=$((current_row + 1))
             fi
-            current_row=$((current_row + 1))
-        fi
-    done
-    mv "$temp_file" "$table_file"
-    
-    echo -e "${GREEN}Row deleted successfully!${NC}"
-    read -p "Press Enter to continue..."
+        done < <(tail -n +5 "$table_file")
+        
+        mv "$temp_file" "$table_file"
+        zenity --info --text="Row deleted successfully!" --width=300
+    fi
 }
 
-# update data in table (simple version)
 update_table() {
-    echo ""
-    echo -e "${BLUE}Update Data in Table${NC}"
-    echo -n "Enter table name: "
-    read table_name
+    table_name=$(zenity --entry \
+        --title="Update Data" \
+        --text="Enter table name:" \
+        --width=300 2>/dev/null)
+    
+    if [ $? -ne 0 ] || [ -z "$table_name" ]; then
+        return
+    fi
     
     table_file="$script_dir/$current_database/$table_name.txt"
     
     if [ ! -f "$table_file" ]; then
-        echo -e "${RED}Error: Table '$table_name' does not exist!${NC}"
-        read -p "Press Enter to continue..."
+        zenity --error --text="Error: Table '$table_name' does not exist!" --width=300
         return
     fi
-    echo ""
-    echo "Current data in table:"
+    
     headers=$(sed -n '3p' "$table_file")
-    echo -e "${BLUE}$headers${NC}"
-    echo "=================================="
+    
+    row_options=""
     row_num=1
-    tail -n +5 "$table_file" | while read -r line; do
+    while read -r line; do
         if [ ! -z "$line" ]; then
-            echo "$row_num. $line"
+            row_options="$row_options FALSE $row_num $line"
             row_num=$((row_num + 1))
         fi
-    done
-    echo ""
-    echo -n "Enter row number to update (0 to cancel): "
-    read row_to_update
+    done < <(tail -n +5 "$table_file")
     
-    if [ "$row_to_update" = "0" ]; then
-        echo "Update operation cancelled."
-        read -p "Press Enter to continue..."
+    if [ -z "$row_options" ]; then
+        zenity --info --text="Table '$table_name' is empty." --width=300
         return
     fi
-    total_rows=$(tail -n +5 "$table_file" | grep -c .)
-    if ! [[ "$row_to_update" =~ ^[0-9]+$ ]] || [ "$row_to_update" -lt 1 ] || [ "$row_to_update" -gt "$total_rows" ]; then
-        echo -e "${RED}Error: Invalid row number!${NC}"
-        read -p "Press Enter to continue..."
+    
+    selected_row=$(zenity --list --radiolist \
+        --title="Update Row" \
+        --text="Headers: $headers\n\nSelect row to update:" \
+        --column="Select" --column="Row#" --column="Data" \
+        --width=700 --height=400 \
+        $row_options 2>/dev/null)
+    
+    if [ $? -ne 0 ] || [ -z "$selected_row" ]; then
         return
     fi
+    
     headers=$(sed -n '3p' "$table_file")
     types=$(sed -n '4p' "$table_file")
     IFS='|' read -ra header_array <<< "$headers"
     IFS='|' read -ra type_array <<< "$types"
-    old_row=$(tail -n +5 "$table_file" | sed -n "${row_to_update}p")
+    
+    old_row=$(tail -n +5 "$table_file" | sed -n "${selected_row}p")
     IFS='|' read -ra old_data <<< "$old_row"
     
-    echo ""
-    echo "Enter new data (press Enter to keep current value):"
     new_row_data=()
     
     for ((i=0; i<${#header_array[@]}; i++)); do
         while true; do
-            echo -n "${header_array[i]} (${type_array[i]}) [current: ${old_data[i]}]: "
-            read value
+            value=$(zenity --entry \
+                --title="Update Data" \
+                --text="Enter new value for ${header_array[i]} (${type_array[i]})\nCurrent value: ${old_data[i]}\n(Leave empty to keep current value)" \
+                --width=400 2>/dev/null)
+            
+            if [ $? -ne 0 ]; then
+                return
+            fi
             
             if [ -z "$value" ]; then
                 value="${old_data[i]}"
             fi
+            
             if [ "${type_array[i]}" = "int" ]; then
                 if [[ "$value" =~ ^[0-9]+$ ]]; then
                     break
                 else
-                    echo -e "${RED}Error: Please enter a valid integer!${NC}"
+                    zenity --error --text="Please enter a valid integer!" --width=300
                 fi
             else
                 if [ ! -z "$value" ]; then
                     break
                 else
-                    echo -e "${RED}Error: Value cannot be empty!${NC}"
+                    zenity --error --text="Value cannot be empty!" --width=300
                 fi
             fi
         done
         
         new_row_data+=("$value")
     done
+    
     new_row_string=""
     for ((i=0; i<${#new_row_data[@]}; i++)); do
         if [ $i -eq 0 ]; then
@@ -548,55 +564,50 @@ update_table() {
     done
     
     temp_file="/tmp/dbms_temp.txt"
-    
     head -4 "$table_file" > "$temp_file"
     current_row=1
-    tail -n +5 "$table_file" | while read -r line; do
+    
+    while read -r line; do
         if [ ! -z "$line" ]; then
-            if [ "$current_row" -eq "$row_to_update" ]; then
+            if [ "$current_row" -eq "$selected_row" ]; then
                 echo "$new_row_string" >> "$temp_file"
             else
                 echo "$line" >> "$temp_file"
             fi
             current_row=$((current_row + 1))
         fi
-    done
-    mv "$temp_file" "$table_file"
+    done < <(tail -n +5 "$table_file")
     
-    echo -e "${GREEN}Row updated successfully!${NC}"
-    read -p "Press Enter to continue..."
+    mv "$temp_file" "$table_file"
+    zenity --info --text="Row updated successfully!" --width=300
 }
 
 main() {
-    echo -e "${GREEN}Welcome to Bash DBMS ${NC}"
-    echo -e "Team :"
-    echo -e "1 - Yassen Mohamed Abdulhamid"
-    echo -e "2 - Mostafa Mohamed Abdullatif"
-    echo -e "3 - Abdulrahman Raafat"
-    echo -e "4 - Ahmed Atef"
-    echo ""
-    read -p "Press Enter to start..."
+    zenity --info \
+        --title="Welcome to Bash DBMS" \
+        --text="Welcome to Bash DBMS\n\nTeam:\n1 - Yassen Mohamed Abdulhamid\n2 - Mostafa Mohamed Abdullatif\n3 - Abdulrahman Raafat\n4 - Ahmed Atef" \
+        --width=400
+    
     while true; do
-        show_main_menu
-        read choice
+        choice=$(show_main_menu)
+        if [ $? -ne 0 ]; then
+            break
+        fi
+        
         case $choice in
-            1) create_database ;;
-            2) list_databases ;;
-            3) connect_database ;;
-            4) drop_database ;;
-            5) 
-                echo -e "${GREEN}Thank you for using Simple Bash DBMS!${NC}"
-                echo "Goodbye!"
+            "1") create_database ;;
+            "2") list_databases ;;
+            "3") connect_database ;;
+            "4") drop_database ;;
+            "5") 
+                zenity --info --text="Thank you for using Bash DBMS!\nGoodbye!" --width=300
                 exit 0
                 ;;
             *) 
-                echo -e "${RED}Invalid option! Please choose 1-5.${NC}"
-                read -p "Press Enter to continue..."
+                zenity --error --text="Invalid option! Please choose a valid option." --width=300
                 ;;
         esac
     done
 }
 
 main
-
-
