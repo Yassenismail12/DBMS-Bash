@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # الموديول ده فيه كل الوظائف الخاصة بالقائمة الرئيسية.
-# لازم يتم تشغيله في السكريبت الرئيسي.
+# لازم يشتغل في السكريبت الرئيسي.
 
-# بيعرض القائمة الرئيسية
+# بيظهر القائمة الرئيسية
 show_main_menu() {
     clear
     echo "=================================="
@@ -18,7 +18,7 @@ show_main_menu() {
     echo -n "Please select an option (1-5): "
 }
 
-# بإنشاء داتا بيز جديدة
+# بننشاء داتا بيز 
 create_database() {
     echo ""
     echo -e "${BLUE}Creating New DB....${NC}"
@@ -43,7 +43,7 @@ create_database() {
     read -p "Press Enter to continue..."
 }
 
-# بيعرض كل الداتا بيز المتاحة
+# بيعرض كل الداتا بيز الموجوده
 list_databases() {
     echo ""
     echo -e "${BLUE}Available Databases:${NC}"
@@ -58,7 +58,7 @@ list_databases() {
         fi
     done
 
-    # بيتحقق لو مفيش أي داتا بيز موجودة
+    # بيشيك لو مفيش أي داتا بيز موجودة
     if [ $db_count -eq 0 ]; then
         echo "No databases found!"
     fi
@@ -86,7 +86,7 @@ connect_database() {
         echo -e "${GREEN}Connected to database '$db_name'${NC}"
         read -p "Press Enter to continue..."
 
-        # بيعرض قائمة الداتا بيز لحد ما المستخدم يرجع للقائمة الرئيسية
+        # بيظهر قائمة الداتا بيز لحد ما المستخدم يرجع للقائمة الرئيسية
         while true; do
             show_database_menu
             read choice
