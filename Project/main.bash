@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# تعريف المتغيرات العامة
+# بنعرف المتغيرات 
 current_database=""
 script_dir=$(pwd) # بيجيب المسار الحالي بتاع السكريبت
 
@@ -14,7 +14,7 @@ NC='\033[0m'
 source main_menu.bash
 source db_menu.bash
 
-# دي الوظيفة الرئيسية اللي بتشغل البرنامج
+# دي القايمة الرئيسية اللي بتشغل البرنامج
 main() {
     echo -e "${GREEN}Welcome to Bash DBMS!${NC}"
     echo "Team 2 Bash DBMS."
