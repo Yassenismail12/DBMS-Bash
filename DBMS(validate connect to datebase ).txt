@@ -477,7 +477,7 @@ select_from_table() {
     echo -e "${GREEN}Data in table '$table_name':${NC}"
     echo "=================================="
     
-    # Get headers (line 3)
+    # بنجيب سطر 3 بس 
     headers=$(sed -n '3p' "$table_file")
     echo -e "${BLUE}$headers${NC}"
     echo "=================================="
@@ -491,7 +491,7 @@ select_from_table() {
         fi
     done
     
-    # Count rows
+    # بنعد السطور
     data_rows=$(tail -n +5 "$table_file" | wc -l)
     echo "=================================="
     echo "Total rows: $data_rows"
@@ -530,7 +530,7 @@ delete_from_table() {
         return
     fi  
     total_rows=$(wc -l < "$table_file")  
-    # Validate row number
+    # بنفالديت العدد 
     if ! [[ "$row_to_del" =~ ^[0-9]+$ ]] || [ "$row_to_del" -lt 1 ] || [ "$row_to_del" -gt "$total_rows" ]; then
         echo -e "${RED}Error: Invalid row number!${NC}"
         read -p "Press Enter to continue..."
@@ -560,7 +560,7 @@ update_table() {
         return
     fi
     
-    # Show current data first
+    
     echo ""
     echo "Current data in table:"
     headers=$(sed -n '3p' "$table_file")
@@ -642,7 +642,7 @@ update_table() {
         new_row_data+=("$value")
     done
     
-    # Build the new row string
+    
     new_row_string=""
     for ((i=0; i<${#new_row_data[@]}; i++)); do
         if [ $i -eq 0 ]; then
@@ -658,7 +658,7 @@ update_table() {
     # بنعمل نسخة للهيدر 
     head -4 "$table_file" > "$temp_file"
     
-    # Copy data lines with updated row
+    # بننسخ السطور المتحدثه
     current_row=1
     tail -n +5 "$table_file" | while read -r line; do
         if [ ! -z "$line" ]; then
@@ -671,7 +671,7 @@ update_table() {
         fi
     done
     
-    # Replace original file
+    
     mv "$temp_file" "$table_file"
     
     echo -e "${GREEN}Row updated successfully!${NC}"
@@ -685,14 +685,14 @@ update_table() {
 
 
 
-# Main program loop
+# قيمة البرنامج الاساسية
 main() {
     echo -e "${GREEN}Welcome to Simple Bash DBMS!${NC}"
     echo "This is a beginner-friendly database management system."
     echo ""
     read -p "Press Enter to start..."
     
-    # Main menu loop
+    
     while true; do
         show_main_menu
         read choice
@@ -715,5 +715,5 @@ main() {
     done
 }
 
-# Start the program
+# بنبداء البرنامج
 main
