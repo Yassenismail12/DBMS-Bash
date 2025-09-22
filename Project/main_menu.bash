@@ -68,6 +68,7 @@ list_databases() {
 
 # بيوصل لداتا بيز موجودة
 connect_database() {
+    echo ""
     list_databases
     echo -e "${BLUE}Connect to Database:${NC}"
     echo -n "Enter database name: "
@@ -112,6 +113,7 @@ connect_database() {
 # بيمسح داتا بيز
 drop_database() {
     echo ""
+    list_databases
     echo -e "${BLUE}Drop Database:${NC}"
     echo -n "Enter database name to delete: "
     read db_name
