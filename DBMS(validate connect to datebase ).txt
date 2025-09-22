@@ -689,8 +689,8 @@ update_table() {
 
 # Main program loop
 main() {
-    echo -e "${GREEN}Welcome to Simple Bash DBMS!${NC}"
-    echo "This is a beginner-friendly database management system."
+    echo -e "${GREEN}" Welcome to our Database Management System."!${NC}"
+    
     echo ""
     read -p "Press Enter to start..."
     
