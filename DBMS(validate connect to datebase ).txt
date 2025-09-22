@@ -11,11 +11,11 @@ NC='\033[0m' # No Color
 current_database=""
 script_dir=$(pwd) # Get current directory where script is located
 
-# Function to display the main menu
+# Func to display the main menu
 show_main_menu() {
     clear
     echo "=================================="
-    echo "   SIMPLE BASH DBMS - MAIN MENU   "
+    echo "       MAIN MENU   "
     echo "=================================="
     echo "1. Create Database"
     echo "2. List Databases"
@@ -26,7 +26,7 @@ show_main_menu() {
     echo -n "Please select an option (1-5): "
 }
 
-# Function to display database menu (when connected to a database)
+#when connected to a exist db
 show_database_menu() {
     clear
     echo "========================================"
@@ -46,7 +46,7 @@ show_database_menu() {
 
 
 
-# Function to create a new database
+# create a new db
 create_database() {
     echo ""
     echo -e "${BLUE}Creating a new database...${NC}"
@@ -60,7 +60,7 @@ create_database() {
         return
     fi
     
-    # Create directory for the database
+    # dir for each database
     if [ -d "$script_dir/$db_name" ]; then
         echo -e "${RED}Error: Database '$db_name' already exists!${NC}"
     else
@@ -73,7 +73,7 @@ create_database() {
 
 
 
-# Function to list all databases
+#   list all databases
 list_databases() {
     echo ""
     echo -e "${BLUE}Available Databases:${NC}"
@@ -90,7 +90,7 @@ list_databases() {
         fi
     done
     
-    # Check if no databases found
+    # validate databases 
     if [ $db_count -eq 0 ]; then
         echo "No databases found!"
     fi
@@ -100,7 +100,7 @@ list_databases() {
 
 
 
-# Function to connect to a database
+#connect to exist database
 connect_database() {
     echo ""
     echo -e "${BLUE}Connect to Database:${NC}"
@@ -116,7 +116,7 @@ connect_database() {
     
     
     
-    # Check if database exists
+    # database existance
     if [ -d "$script_dir/$db_name" ]; then
         current_database="$db_name"
         echo -e "${GREEN}Connected to database '$db_name'${NC}"
@@ -147,7 +147,7 @@ connect_database() {
 
 
 
-# Function to drop/delete a database
+# drop/delete a database
 drop_database() {
     echo ""
     echo -e "${BLUE}Drop Database:${NC}"
@@ -174,7 +174,7 @@ drop_database() {
 }
 
 
-# Function to create a table
+# create a table
 create_table() {
     echo ""
     echo -e "${BLUE}Create Table in Database: $current_database${NC}"
@@ -196,11 +196,11 @@ create_table() {
     fi
     
     
-    # Ask for number of columns
+    #take number of columns
     echo -n "Enter number of columns: "
     read num_columns
     
-    # Validate number of columns
+    # validate number of columns
     if ! [[ "$num_columns" =~ ^[0-9]+$ ]] || [ "$num_columns" -lt 1 ]; then
         echo -e "${RED}Error: Invalid number of columns!${NC}"
         read -p "Press Enter to continue..."
@@ -209,7 +209,7 @@ create_table() {
     
    
     
-    # Arrays to store column info
+    #  store column info in arrays 
     column_names=()
     column_types=()
     primary_key=""
@@ -247,7 +247,7 @@ create_table() {
         fi
     done
     
-    # Ask for primary key
+    # take primary key
     echo ""
     echo "Available columns for primary key:"
     for ((i=0; i<${#column_names[@]}; i++)); do
@@ -260,10 +260,10 @@ create_table() {
         primary_key="${column_names[$((pk_choice-1))]}"
     fi
     
-    # Create table structure file
+    # table structure file
     table_file="$script_dir/$current_database/$table_name.txt"
     
-    # Write table metadata (first line)
+    # (first line)table metadata
     echo "# Table: $table_name" > "$table_file"
     echo "# Primary Key: $primary_key" >> "$table_file"
     
@@ -290,7 +290,7 @@ create_table() {
 
 
 
-# Function to list all tables
+# list all tables
 list_tables() {
     echo ""
     echo -e "${BLUE}Tables in Database: $current_database${NC}"
@@ -322,7 +322,7 @@ list_tables() {
 
 
 
-# Function to drop/delete a table
+# drop/delete a table
 drop_table() {
     echo ""
     echo -e "${BLUE}Drop Table from Database: $current_database${NC}"
@@ -353,7 +353,7 @@ drop_table() {
 
 
 
-# Function to insert data into table
+# insert data into table
 insert_into_table() {
     echo ""
     echo -e "${BLUE}Insert Data into Table${NC}"
@@ -458,7 +458,7 @@ insert_into_table() {
 
 
 
-# Function to select/display data from table
+# display data  table
 select_from_table() {
     echo ""
     echo -e "${BLUE}Select Data from Table${NC}"
