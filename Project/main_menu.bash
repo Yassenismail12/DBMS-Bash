@@ -42,16 +42,16 @@ create_database() {
 
     read -p "Press Enter to continue..."
 }
-check=0   # ده فاريابل جلوبال يا مصطفي عشان نعمل فاليديت للإكزت لما مفيش داتابيز
+checkDB=0   # ده فاريابل جلوبال يا مصطفي عشان نعمل فاليديت للإكزت لما مفيش داتابيز
 
-# بيفحص وجود قواعد بيانات ويحدث قيمة check
+# بيفحص وجود قواعد بيانات ويحدث قيمة checkDB
 list_databases() {
     echo ""
     echo -e "${BLUE}Available Databases:${NC}"
     echo "===================="
 
     db_count=0
-    check=0  
+    checkDB=0  
 
     for dir in */; do
         if [ -d "$dir" ]; then
@@ -62,7 +62,7 @@ list_databases() {
 
     if [ $db_count -eq 0 ]; then
         echo "No databases found!"
-        check=1
+        checkDB=1
     fi
 
     read -p "Press Enter to continue..."
@@ -73,7 +73,7 @@ connect_database() {
     echo ""
     list_databases
     
-    if [ $check -eq 1 ]; then
+    if [ $checkDB -eq 1 ]; then
         echo -e "${RED}No databases available to connect!${NC}"
         read -p "Press Enter to continue..."
         return
@@ -120,7 +120,7 @@ drop_database() {
     echo ""
     list_databases
     
-    if [ $check -eq 1 ]; then
+    if [ $checkDB -eq 1 ]; then
         echo -e "${RED}No databases available to drop!${NC}"
         read -p "Press Enter to continue..."
         return
