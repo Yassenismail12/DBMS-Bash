@@ -521,14 +521,16 @@ delete_from_table() {
     echo ""
     echo -n "Enter row number to delete (0 to cancel): "
     read row_to_delete
-    
-    row_to_del=$((row_to_delete + 4))
-    
+
     if [ "$row_to_delete" = "0" ]; then
         echo "Delete operation cancelled."
         read -p "Press Enter to continue..."
         return
-    fi  
+    fi 
+
+    row_to_del=$((row_to_delete + 4))
+    
+     
     total_rows=$(wc -l < "$table_file")  
     # Validate row number
     if ! [[ "$row_to_del" =~ ^[0-9]+$ ]] || [ "$row_to_del" -lt 1 ] || [ "$row_to_del" -gt "$total_rows" ]; then
