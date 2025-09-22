@@ -457,7 +457,7 @@ insert_into_table() {
 
 
 
-# display data  table
+# select بنظهر الداتا من التابل
 select_from_table() {
     echo ""
     echo -e "${BLUE}Select Data from Table${NC}"
@@ -476,12 +476,12 @@ select_from_table() {
     echo -e "${GREEN}Data in table '$table_name':${NC}"
     echo "=================================="
     
-    # Get headers (line 3)
+    # بنجيب سطر 3 بس 
     headers=$(sed -n '3p' "$table_file")
     echo -e "${BLUE}$headers${NC}"
     echo "=================================="
     
-    # Display all data rows (from line 5 onwards)
+    # بنظهر الداتا من السطر ال5 
     row_count=0
     tail -n +5 "$table_file" | while read -r line; do
         if [ ! -z "$line" ]; then
@@ -490,7 +490,7 @@ select_from_table() {
         fi
     done
     
-    # Count rows
+    # بنعد السطور
     data_rows=$(tail -n +5 "$table_file" | wc -l)
     echo "=================================="
     echo "Total rows: $data_rows"
@@ -499,7 +499,7 @@ select_from_table() {
 }
 
 
-# Function to delete data from table (simple version)
+# بنمسح من التابل 
 delete_from_table() {
     echo ""
     echo -e "${BLUE}Delete Data from Table${NC}"
@@ -514,24 +514,22 @@ delete_from_table() {
         return
     fi  
 	echo ""
-	# start the file after table headers(first 4 rows) strat from the 5th row
+	# بنمسح من بعد السطر ال4 
 	tail -n +5 $table_file | cat -n  
 	
     echo ""
     echo -n "Enter row number to delete (0 to cancel): "
     read row_to_delete
-
+    
+    row_to_del=$((row_to_delete + 4))
+    
     if [ "$row_to_delete" = "0" ]; then
         echo "Delete operation cancelled."
         read -p "Press Enter to continue..."
         return
-    fi 
-
-    row_to_del=$((row_to_delete + 4))
-    
-     
+    fi  
     total_rows=$(wc -l < "$table_file")  
-    # Validate row number
+    # بنفالديت العدد 
     if ! [[ "$row_to_del" =~ ^[0-9]+$ ]] || [ "$row_to_del" -lt 1 ] || [ "$row_to_del" -gt "$total_rows" ]; then
         echo -e "${RED}Error: Invalid row number!${NC}"
         read -p "Press Enter to continue..."
@@ -546,7 +544,7 @@ delete_from_table() {
 
 
 
-# Function to update data in table (simple version)
+# بنحدث الداتا الف التابل 
 update_table() {
     echo ""
     echo -e "${BLUE}Update Data in Table${NC}"
@@ -561,14 +559,14 @@ update_table() {
         return
     fi
     
-    # Show current data first
+    
     echo ""
     echo "Current data in table:"
     headers=$(sed -n '3p' "$table_file")
     echo -e "${BLUE}$headers${NC}"
     echo "=================================="
     
-    # Show rows with numbers
+    # بنظهر السطور بالارقام
     row_num=1
     tail -n +5 "$table_file" | while read -r line; do
         if [ ! -z "$line" ]; then
@@ -587,7 +585,7 @@ update_table() {
         return
     fi
     
-    # Validate row number
+    # بنفالديت رقم السطر
     total_rows=$(tail -n +5 "$table_file" | grep -c .)
     if ! [[ "$row_to_update" =~ ^[0-9]+$ ]] || [ "$row_to_update" -lt 1 ] || [ "$row_to_update" -gt "$total_rows" ]; then
         echo -e "${RED}Error: Invalid row number!${NC}"
@@ -595,36 +593,36 @@ update_table() {
         return
     fi
     
-    # Get table structure
+    # بنجيب استراكشر التابل
     headers=$(sed -n '3p' "$table_file")
     types=$(sed -n '4p' "$table_file")
     
-    # Convert to arrays
+    # بنحولهم ل array
     IFS='|' read -ra header_array <<< "$headers"
     IFS='|' read -ra type_array <<< "$types"
     
-    # Get old row data
+   
     old_row=$(tail -n +5 "$table_file" | sed -n "${row_to_update}p")
     IFS='|' read -ra old_data <<< "$old_row"
     
     echo ""
     echo "Enter new data (press Enter to keep current value):"
     
-    # Array to store the new row data
+    # Array علشان نخزن فيه الجديد
     new_row_data=()
     
-    # Get data for each column
+    # بنلوب علشان نجيب الداتا لكل عمود
     for ((i=0; i<${#header_array[@]}; i++)); do
         while true; do
             echo -n "${header_array[i]} (${type_array[i]}) [current: ${old_data[i]}]: "
             read value
             
-            # If empty, keep old value
+            # لو المستخدم مدخلش حاجة جديدة بنسبها زي ماهي 
             if [ -z "$value" ]; then
                 value="${old_data[i]}"
             fi
             
-            # Validate data type
+            # بنفالديت الدات تايب
             if [ "${type_array[i]}" = "int" ]; then
                 if [[ "$value" =~ ^[0-9]+$ ]]; then
                     break
@@ -643,7 +641,7 @@ update_table() {
         new_row_data+=("$value")
     done
     
-    # Build the new row string
+    
     new_row_string=""
     for ((i=0; i<${#new_row_data[@]}; i++)); do
         if [ $i -eq 0 ]; then
@@ -653,13 +651,13 @@ update_table() {
         fi
     done
     
-    # Create temporary file
+    # بنعمل ملف مؤقت
     temp_file="/tmp/dbms_temp.txt"
     
-    # Copy header lines
+    # بنعمل نسخة للهيدر 
     head -4 "$table_file" > "$temp_file"
     
-    # Copy data lines with updated row
+    # بننسخ السطور المتحدثه
     current_row=1
     tail -n +5 "$table_file" | while read -r line; do
         if [ ! -z "$line" ]; then
@@ -672,7 +670,7 @@ update_table() {
         fi
     done
     
-    # Replace original file
+    
     mv "$temp_file" "$table_file"
     
     echo -e "${GREEN}Row updated successfully!${NC}"
@@ -686,14 +684,14 @@ update_table() {
 
 
 
-# Main program loop
+# قيمة البرنامج الاساسية
 main() {
-    echo -e "${GREEN}" Welcome to our Database Management System."!${NC}"
-    
+    echo -e "${GREEN}Welcome to Simple Bash DBMS!${NC}"
+    echo "This is a beginner-friendly database management system."
     echo ""
     read -p "Press Enter to start..."
     
-    # Main menu loop
+    
     while true; do
         show_main_menu
         read choice
@@ -716,5 +714,5 @@ main() {
     done
 }
 
-# Start the program
+# بنبداء البرنامج
 main
