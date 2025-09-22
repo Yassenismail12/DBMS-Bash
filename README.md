@@ -1,568 +1,130 @@
-# Bash Database Management System 
+                                                       ***Bash Database Management System
+                                                            ====================== 
 
-This project is a **command-line Database Management System (DBMS)** written entirely in **Bash**.
-It simulates database functionality using the **file system**, where:
 
-* **Databases** → directories
-* **Tables** → text files
-* **Operations** → CRUD (Create, Read, Update, Delete)
+show_main_menu()
+=================
 
-The system emphasizes **simplicity, modularity, data validation, and a user-friendly interface**.
+Display the Main Functions of the Datebases
 
----
 
-## Getting Started
+---------------------------------------------------------------------
 
-Run the script in a Bash environment:
+show_database_menu()
+=================
 
-```bash
-bash DBMS.bash
-```
+Display the Main Functions of tables of the connected Datebase  
 
-You will be greeted with an interactive, menu-driven interface to manage databases and tables.
+---------------------------------------------------------------------
 
----
+create_database()
+=================
 
-## Core Concepts
+1-enter db_name
 
-* **File-Based Storage** → Directories represent databases, tables are `.txt` files.
-* **Data Integrity** → Enforces primary key uniqueness and data type validation (`int`, `str`).
-* **User Experience** → Color-coded terminal output, structured menus, and clear prompts.
-* **Modular Design** → Each operation is encapsulated in its own function for clarity.
+2-check if database_name is empty
 
----
+3-if is not empty create dir
 
-## Features
+4-give me massege that dir created successfully
 
-### Main Menu
+---------------------------------------------------------------------
 
-1. **Create Database** → Creates a new folder.
-2. **List Databases** → Displays available databases.
-3. **Connect to Database** → Select a database and open the **Database Menu**.
-4. **Drop Database** → Deletes a database folder and its contents.
-5. **Exit** → Quits the system.
+list_databases()
+=================
+1-enter database name 
 
-### Database Menu (when connected)
+2-check if database_name is empty
 
-1. **Create Table** → Define columns and types, stored in a `.txt` file.
-2. **List Tables** → Shows all tables in the active database.
-3. **Drop Table** → Deletes a table file.
-4. **Insert into Table** → Adds a new row, with validation.
-5. **Select From Table** → Displays all rows with headers.
-6. **Delete From Table** → Removes a specific row.
-7. **Update Table** → Edits fields of an existing row.
-8. **Back to Main Menu** → Disconnects from the current database.
+3-make variable called db_count=0
 
----
+loop in current_db to git directry
 
-## File & Data Organization
+---------------------------------------------------------------------
 
-### Project Structure
+connect_database()
+=================
+1-enter db_name that be created in (create database)
 
-```
-project_directory/
-├── database1/
-│   ├── users.txt
-│   └── products.txt
-├── database2/
-│   └── orders.txt
-└── DBMS.bash
-```
+2-check it is directry
 
-### Table File Format
+3-store db_name in current_db
 
-Each table is a structured text file with metadata, schema, and rows.
+4-when i connect to current_db:
 
-**Example: `users.txt`**
+-i can create table as file
 
-```
-# Table: users
-# Primary Key: id
-id|name|email|age
-int|str|str|int
-1|Mostafa Elelemy|Elelemy@example.com|25
-2|Yassen mohamed|Yassen@example.com|30
-```
+-i can list mor than one table
 
-* **Line 1–2** → Metadata (`# Table`, `# Primary Key`)
-* **Line 3** → Column headers (`|` separated)
-* **Line 4** → Data types (`int`, `str`)
-* **Line 5+** → Actual data rows
+-i can insert_into_table
 
----
 
-## Technical Breakdown
+-i can select from table ,deletefrom table,update
 
-### Setup & Configuration
+5-if current_db is not exiest
 
-```bash
-# Colors
-RED='\033[0;31m'    # Errors
-GREEN='\033[0;32m'  # Success
-BLUE='\033[0;34m'   # Info
-NC='\033[0m'        # Reset
-
-# Globals
-current_database=""   # Active DB
-script_dir=$(pwd)     # Script directory
-```
 
-### Bash Features Used
+---------------------------------------------------------------------
 
-* **Arrays** → Manage columns and schema.
-* **Regex** → Input validation (`[[ "$value" =~ ^[0-9]+$ ]]`).
-* **I/O Redirection** → `>`, `>>`, `2>/dev/null`.
-* **Parameter Expansion** → `${var%/}`, `${#array[@]}`.
-* **Loops** → `for`, `while`, C-style loops.
-* **Case & If** → Menu and validation logic.
 
-### Error Handling
+drop_database()
+=================
+1-enter db_name
 
-* Empty input checks.
-* File/directory existence checks.
-* Data type validation.
-* Primary key uniqueness.
+2-if db_name is exist :give me warning that it wil be delete entire data and all date
 
----
+3-then delete data_base
 
-## Main Program Flow
+---------------------------------------------------------------------
 
-```bash
-main() {
-    echo -e "${GREEN}Welcome to Bash DBMS${NC}"
-    echo "Team:"
-    echo "1 - Yassen Mohamed Abdulhamid"
-    echo "2 - Mostafa Mohamed Abdullatif"
-    echo "3 - Abdulrahman Raafat"
-    echo "4 - Ahmed Atef"
-    read -p "Press Enter to start..."
 
-    while true; do
-        show_main_menu
-        read choice
-        case $choice in
-            1) create_database ;;
-            2) list_databases ;;
-            3) connect_database ;;
-            4) drop_database ;;
-            5) echo -e "${GREEN}Thank you for using Bash DBMS!${NC}"; exit 0 ;;
-            *) echo -e "${RED}Invalid option!${NC}"; read -p "Press Enter..." ;;
-        esac
-    done
-}
-main
-```
+Function create_table
+======================
+1-validate the name of table and ensure its existance
 
----
+2-get the name of the table 
 
-## Summary
+3-get the number of columns
 
-This Bash DBMS provides:
+4-validate the names of the columns and ensure their existance
 
-* **File System as Database** → Directories & text files act like relational DB objects.
-* **Full CRUD Support** → Databases and tables with validation.
-* **Practical Learning Tool** → Teaches database concepts through Bash scripting.
-* **User-Friendly Interface** → Menus, colors, clear error messages.
-* **Robust Design** → Modular, validated, and error-handled.
+5- take the names and the types of date 
 
- A compact yet powerful educational project that combines **database theory** with **advanced Bash scripting**.
+6-choose the primary key
 
----
 
-# Bash DBMS – Function-by-Function Documentation
+note:  structure of the table '|' sepreate the columns >>>     cloumn1_name  |    cloumn2_name  |  cloumn3_name
 
----
+---------------------------------------------------------------------
+Function list_tables
+======================
+1-validate the name of table and ensure its existance
 
-## Main Menu Functions
+2- for loop to iterate on tables in the current directory
 
----
+---------------------------------------------------------------------
+Function insert_into_table
+======================
+1-validate the name of table and ensure its existance and has same name of another table or no
 
-### 1. `create_database`
+2-display the headers of the table 
 
-**Purpose:**
-Create a new folder to represent a database.
+3take the data from user
 
-**Code:**
+4- seprate the data of each column by delimeter '|'  
 
-```bash
-create_database() {
-    read -p "Enter database name: " dbname
-    if [ -d "$dbname" ]; then
-        echo -e "${RED}Error: Database already exists!${NC}"
-    else
-        mkdir "$dbname"
-        echo -e "${GREEN}Database '$dbname' created successfully.${NC}"
-    fi
-}
-```
+5- append by >>  not > 
 
-**Explanation:**
+6- validate the P.K
 
-* `read -p` → prompts the user inline: `"Enter database name:"`.
-* `if [ -d "$dbname" ]` → checks if a directory exists (`-d` = directory).
-* `echo -e` → `-e` enables color codes like `${RED}` and `${GREEN}`.
-* `mkdir "$dbname"` → creates the directory (new database).
+---------------------------------------------------------------------
+Function delete_from_table
+======================
+1-validate the name of table and ensure its existance
 
----
+2- display the data numbered
 
-### 2. `list_databases`
-
-**Purpose:**
-Show all databases (directories).
-
-**Code:**
-
-```bash
-list_databases() {
-    echo "Available Databases:"
-    ls -F | grep '/$' | sed 's#/##'
-}
-```
-
-**Explanation:**
-
-* `ls -F` → lists files/folders with symbols (`/` = directory).
-* `grep '/$'` → filters only directories (lines ending with `/`).
-* `sed 's#/##'` → removes the trailing `/` for clean display.
-
----
-
-### 3. `connect_database`
-
-**Purpose:**
-Switch active DB and enter database menu.
-
-**Code:**
-
-```bash
-connect_database() {
-    read -p "Enter database name to connect: " dbname
-    if [ -d "$dbname" ]; then
-        current_database="$dbname"
-        cd "$dbname"
-        echo -e "${GREEN}Connected to '$dbname'.${NC}"
-        show_database_menu
-    else
-        echo -e "${RED}Error: Database does not exist!${NC}"
-    fi
-}
-```
-
-**Explanation:**
-
-* `if [ -d "$dbname" ]` → ensures the DB folder exists.
-* `current_database="$dbname"` → stores DB name in global variable.
-* `cd "$dbname"` → changes directory (enter database).
-* `show_database_menu` → loads the Database Menu loop.
-
----
-
-### 4. `drop_database`
-
-**Purpose:**
-Delete a database permanently.
-
-**Code:**
-
-```bash
-drop_database() {
-    read -p "Enter database name to drop: " dbname
-    if [ -d "$dbname" ]; then
-        rm -r "$dbname"
-        echo -e "${GREEN}Database '$dbname' deleted successfully.${NC}"
-    else
-        echo -e "${RED}Error: Database does not exist!${NC}"
-    fi
-}
-```
-
-**Explanation:**
-
-* `rm -r "$dbname"` → removes directory and all contents.
-
-  * `-r` = recursive (required for directories).
-* Error message shown if directory doesn’t exist.
-
----
-
----
-
-## Database Menu Functions
-
----
-
-### 1. `create_table`
-
-**Purpose:**
-Create a `.txt` file as a table with schema metadata.
-
-**Code:**
-
-```bash
-create_table() {
-    read -p "Enter table name: " tname
-    if [ -f "$tname.txt" ]; then
-        echo -e "${RED}Error: Table already exists!${NC}"
-        return
-    fi
-
-    touch "$tname.txt"
-    echo "# Table: $tname" >> "$tname.txt"
-
-    read -p "Enter primary key column: " pk
-    echo "# Primary Key: $pk" >> "$tname.txt"
-
-    read -p "Enter number of columns: " n
-    headers=()
-    types=()
-
-    for ((i=1; i<=n; i++)); do
-        read -p "Enter column $i name: " cname
-        read -p "Enter column $i type (int/str): " ctype
-        headers+=("$cname")
-        types+=("$ctype")
-    done
-
-    echo "${headers[*]}" | tr ' ' '|' >> "$tname.txt"
-    echo "${types[*]}" | tr ' ' '|' >> "$tname.txt"
-
-    echo -e "${GREEN}Table '$tname' created successfully.${NC}"
-}
-```
-
-**Explanation:**
-
-* `if [ -f "$tname.txt" ]` → checks if file already exists (`-f` = file).
-* `touch "$tname.txt"` → creates empty file.
-* `echo "..." >> file` → appends metadata lines.
-* `headers+=("$cname")` → stores column names in array.
-* `echo "${headers[*]}" | tr ' ' '|'` → joins array with `|` instead of spaces.
-* Resulting schema looks like:
-
-  ```
-  # Table: users
-  # Primary Key: id
-  id|name|age
-  int|str|int
-  ```
-
----
-
-### 2. `list_tables`
-
-**Purpose:**
-Show all tables in the database.
-
-**Code:**
-
-```bash
-list_tables() {
-    echo "Tables in '$current_database':"
-    ls *.txt 2>/dev/null || echo "No tables found."
-}
-```
-
-**Explanation:**
-
-* `ls *.txt` → lists all `.txt` files (tables).
-* `2>/dev/null` → suppress error if no files exist.
-* `|| echo "No tables found."` → fallback message.
-
----
-
-### 3. `drop_table`
-
-**Purpose:**
-Remove a table file.
-
-**Code:**
-
-```bash
-drop_table() {
-    read -p "Enter table name: " tname
-    if [ -f "$tname.txt" ]; then
-        rm "$tname.txt"
-        echo -e "${GREEN}Table '$tname' deleted successfully.${NC}"
-    else
-        echo -e "${RED}Error: Table does not exist!${NC}"
-    fi
-}
-```
-
-**Explanation:**
-
-* `rm "$tname.txt"` → deletes the table file.
-
----
-
-### 4. `insert_into_table`
-
-**Purpose:**
-Add a new record (row) to a table.
-
-**Code:**
-
-```bash
-insert_into_table() {
-    read -p "Enter table name: " tname
-    if [ ! -f "$tname.txt" ]; then
-        echo -e "${RED}Error: Table does not exist!${NC}"
-        return
-    fi
-
-    schema=$(sed -n '3p' "$tname.txt")
-    types=$(sed -n '4p' "$tname.txt")
-    IFS="|" read -ra columns <<< "$schema"
-    IFS="|" read -ra ctypes <<< "$types"
-
-    row=()
-    for i in "${!columns[@]}"; do
-        while true; do
-            read -p "Enter value for ${columns[$i]}: " val
-            if [[ "${ctypes[$i]}" == "int" && ! "$val" =~ ^[0-9]+$ ]]; then
-                echo -e "${RED}Invalid: must be integer.${NC}"
-            else
-                row+=("$val")
-                break
-            fi
-        done
-    done
-
-    echo "${row[*]}" | tr ' ' '|' >> "$tname.txt"
-    echo -e "${GREEN}Row inserted successfully.${NC}"
-}
-```
-
-**Explanation:**
-
-* `sed -n '3p'` → get column headers (line 3).
-* `sed -n '4p'` → get column types (line 4).
-* `IFS="|" read -ra` → split headers/types into arrays.
-* Regex: `[[ "$val" =~ ^[0-9]+$ ]]` → checks for integer input.
-* `echo "${row[*]}" | tr ' ' '|'` → format row into `|` separated values.
-
----
-
-### 5. `select_from_table`
-
-**Purpose:**
-View all records in a table.
-
-**Code:**
-
-```bash
-select_from_table() {
-    read -p "Enter table name: " tname
-    if [ -f "$tname.txt" ]; then
-        column -t -s "|" "$tname.txt"
-    else
-        echo -e "${RED}Error: Table does not exist!${NC}"
-    fi
-}
-```
-
-**Explanation:**
-
-* `column -t -s "|"` → formats table neatly:
-
-  * `-t` = create table format
-  * `-s "|"` = split by `|`
-
----
-
-### 6. `delete_from_table`
-
-**Purpose:**
-Remove a record from a table.
-
-**Code:**
-
-```bash
-delete_from_table() {
-    read -p "Enter table name: " tname
-    if [ ! -f "$tname.txt" ]; then
-        echo -e "${RED}Error: Table does not exist!${NC}"
-        return
-    fi
-
-    read -p "Enter row number to delete: " rownum
-    sed -i "${rownum}d" "$tname.txt"
-    echo -e "${GREEN}Row deleted successfully.${NC}"
-}
-```
-
-**Explanation:**
-
-* `sed -i "${rownum}d" file` → deletes line at number `$rownum`.
-
----
-
-### 7. `update_table`
-
-**Purpose:**
-Modify a row’s values.
-
-**Code:**
-
-```bash
-update_table() {
-    read -p "Enter table name: " tname
-    if [ ! -f "$tname.txt" ]; then
-        echo -e "${RED}Error: Table does not exist!${NC}"
-        return
-    fi
-
-    read -p "Enter row number to update: " rownum
-    oldrow=$(sed -n "${rownum}p" "$tname.txt")
-    echo "Current row: $oldrow"
-
-    schema=$(sed -n '3p' "$tname.txt")
-    IFS="|" read -ra columns <<< "$schema"
-
-    newrow=()
-    for col in "${columns[@]}"; do
-        read -p "Enter new value for $col (leave blank to keep): " val
-        if [ -z "$val" ]; then
-            newrow+=("$(echo "$oldrow" | cut -d'|' -f$((++idx)))")
-        else
-            newrow+=("$val")
-        fi
-    done
-
-    sed -i "${rownum}s/.*/$(IFS="|"; echo "${newrow[*]}")/" "$tname.txt"
-    echo -e "${GREEN}Row updated successfully.${NC}"
-}
-```
-
-**Explanation:**
-
-* `sed -n "${rownum}p"` → print specific row.
-* `cut -d'|' -fN` → extract specific column value.
-* `sed -i "${rownum}s/.*/newrow/"` → replace entire line.
-
----
-
-### 8. `back_to_main_menu`
-
-**Purpose:**
-Return to main menu.
-
-**Code:**
-
-```bash
-back_to_main_menu() {
-    cd ..
-    current_database=""
-}
-```
-
-**Explanation:**
-
-* `cd ..` → move up one directory (exit database).
-* Reset `current_database`.
-
-
----
+3- choose row number to be deleted
 
 # Flow Diagrams – Bash DBMS
 
