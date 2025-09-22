@@ -1,23 +1,21 @@
 #!/bin/bash
 
-# Colors
+# colors 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
-# Global variables
+
 current_database=""
-script_dir=$(pwd) 
+script_dir=$(pwd) # Get current directory where script is located
 
-# display the main menu
+# diplay the  main menu
 show_main_menu() {
     clear
-    echo "======================================"
-    echo "Team 2"
-    echo "====================================="
-    echo "   BASH DBMS - MAIN MENU   "
-    echo "===================================="
+    echo "=================================="
+    echo "       MAIN MENU   "
+    echo "=================================="
     echo "1. Create Database"
     echo "2. List Databases"
     echo "3. Connect To Database"
@@ -27,7 +25,7 @@ show_main_menu() {
     echo -n "Please select an option (1-5): "
 }
 
-# display database menu (when connected to a database)
+#when connected to a exist db
 show_database_menu() {
     clear
     echo "========================================"
@@ -45,19 +43,23 @@ show_database_menu() {
     echo -n "Please select an option (1-8): "
 }
 
-# create a new database
+
+
+# create a new db
 create_database() {
     echo ""
     echo -e "${BLUE}Creating a new database...${NC}"
     echo -n "Enter database name: "
     read db_name
     
+    # Check if database name is empty
     if [ -z "$db_name" ]; then
         echo -e "${RED}Error: Database name cannot be empty!${NC}"
         read -p "Press Enter to continue..."
         return
     fi
     
+    # dir for each database
     if [ -d "$script_dir/$db_name" ]; then
         echo -e "${RED}Error: Database '$db_name' already exists!${NC}"
     else
@@ -68,35 +70,58 @@ create_database() {
     read -p "Press Enter to continue..."
 }
 
-# Function to list all databases
+
+
+#   list all databases
 list_databases() {
     echo ""
     echo -e "${BLUE}Available Databases:${NC}"
-    echo "============================="
+    echo "===================="
+    
+    # Count databases
     db_count=0
+    
+    # Loop through directories in current folder
     for dir in */; do
         if [ -d "$dir" ]; then
             db_count=$((db_count + 1))
-            echo "$db_count. ${dir%/}" 
+            echo "$db_count. ${dir%/}" # Remove trailing slash
         fi
     done
+    
+    # validate databases 
     if [ $db_count -eq 0 ]; then
         echo "No databases found!"
     fi
+    
     read -p "Press Enter to continue..."
 }
 
-# connect to a database
+
+
+#connect to exist database
 connect_database() {
     echo ""
     echo -e "${BLUE}Connect to Database:${NC}"
     echo -n "Enter database name: "
     read db_name
+    
+    # Check if database name is empty
+    if [ -z "$db_name" ]; then
+        echo -e "${RED}Error: Database name cannot be empty!${NC}"
+        read -p "Press Enter to continue..."
+        return
+    fi
+    
+    
+    
+    # database existance
     if [ -d "$script_dir/$db_name" ]; then
         current_database="$db_name"
         echo -e "${GREEN}Connected to database '$db_name'${NC}"
         read -p "Press Enter to continue..."
-
+        
+        # Show database menu until user goes back
         while true; do
             show_database_menu
             read choice
@@ -119,6 +144,8 @@ connect_database() {
     fi
 }
 
+
+
 # drop/delete a database
 drop_database() {
     echo ""
@@ -126,6 +153,7 @@ drop_database() {
     echo -n "Enter database name to delete: "
     read db_name
     
+    # Check if database exists
     if [ -d "$script_dir/$db_name" ]; then
         echo -e "${RED}WARNING: This will delete the entire database and all its data!${NC}"
         echo -n "Are you sure? (yes/no): "
@@ -144,42 +172,66 @@ drop_database() {
     read -p "Press Enter to continue..."
 }
 
+
+# create a table
 create_table() {
     echo ""
     echo -e "${BLUE}Create Table in Database: $current_database${NC}"
     echo -n "Enter table name: "
     read table_name
     
+    # Check if table name is empty
     if [ -z "$table_name" ]; then
         echo -e "${RED}Error: Table name cannot be empty!${NC}"
         read -p "Press Enter to continue..."
         return
     fi
     
+    # Check if table already exists
     if [ -f "$script_dir/$current_database/$table_name.txt" ]; then
         echo -e "${RED}Error: Table '$table_name' already exists!${NC}"
         read -p "Press Enter to continue..."
         return
     fi
     
+    
+    #take number of columns
     echo -n "Enter number of columns: "
     read num_columns
     
+    # validate number of columns
     if ! [[ "$num_columns" =~ ^[0-9]+$ ]] || [ "$num_columns" -lt 1 ]; then
         echo -e "${RED}Error: Invalid number of columns!${NC}"
         read -p "Press Enter to continue..."
         return
     fi
     
+   
+    
+    #  store column info in arrays 
     column_names=()
     column_types=()
     primary_key=""
+    
+    # Get column information
     echo ""
     echo "Enter column details:"
     for ((i=1; i<=num_columns; i++)); do
         echo -n "Column $i name: "
+        
+        
+        while true ; do
+        
         read col_name
-        column_names+=("$col_name")
+        #validate column name
+        if [[ " ${column_names[@]} " =~ " $col_name " ]]; then
+    		echo "$input already exist try another name please!"
+    	else	
+        	column_names+=("$col_name")
+        	break;
+        fi 
+        done	
+       
         
         echo "Column $i data type:"
         echo "1. int (integer)"
@@ -193,6 +245,8 @@ create_table() {
             column_types+=("str")
         fi
     done
+    
+    # take primary key
     echo ""
     echo "Available columns for primary key:"
     for ((i=0; i<${#column_names[@]}; i++)); do
@@ -204,9 +258,15 @@ create_table() {
     if [ "$pk_choice" -gt 0 ] && [ "$pk_choice" -le "${#column_names[@]}" ]; then
         primary_key="${column_names[$((pk_choice-1))]}"
     fi
+    
+    # table structure file
     table_file="$script_dir/$current_database/$table_name.txt"
+    
+    # (first line)table metadata
     echo "# Table: $table_name" > "$table_file"
     echo "# Primary Key: $primary_key" >> "$table_file"
+    
+    # Write column headers
     header=""
     types_line=""
     for ((i=0; i<${#column_names[@]}; i++)); do
@@ -218,12 +278,16 @@ create_table() {
             types_line="$types_line|${column_types[i]}"
         fi
     done
+    
     echo "$header" >> "$table_file"
     echo "$types_line" >> "$table_file"
-
+    
     echo -e "${GREEN}Table '$table_name' created successfully!${NC}"
     read -p "Press Enter to continue..."
+    
 }
+
+
 
 # list all tables
 list_tables() {
@@ -233,10 +297,11 @@ list_tables() {
     
     table_count=0
     
+    # Loop through .txt files in database directory
     for file in "$script_dir/$current_database"/*.txt; do
         if [ -f "$file" ]; then
             table_count=$((table_count + 1))
-            table_name=$(basename "$file" .txt)
+            table_name=$(basename "$file" .txt) # عشان تعرضه من غير اكستنشن basename
             echo "$table_count. $table_name"
         fi
     done
@@ -247,6 +312,14 @@ list_tables() {
     
     read -p "Press Enter to continue..."
 }
+
+
+
+
+
+
+
+
 
 # drop/delete a table
 drop_table() {
@@ -275,6 +348,10 @@ drop_table() {
     read -p "Press Enter to continue..."
 }
 
+
+
+
+
 # insert data into table
 insert_into_table() {
     echo ""
@@ -290,23 +367,35 @@ insert_into_table() {
         return
     fi
     
+
+
+
+
+    # Read table structure
+    # Skip 1st(table name) , 2nd line(primary key)
+ 
+    # get headers and types
     headers=$(sed -n '3p' "$table_file")
     types=$(sed -n '4p' "$table_file")
     primary_key=$(sed -n '2p' "$table_file" | cut -d':' -f2 | xargs)
     
+    # Convert to arrays
     IFS='|' read -ra header_array <<< "$headers"
     IFS='|' read -ra type_array <<< "$types"
     
     echo ""
     echo "Enter data for each column:"
-
+    
+    # Array to store the new row data
     row_data=()
-
+    
+    # Get data for each column
     for ((i=0; i<${#header_array[@]}; i++)); do
         while true; do
             echo -n "${header_array[i]} (${type_array[i]}): "
             read value
             
+            # Validate data type
             if [ "${type_array[i]}" = "int" ]; then
                 if [[ "$value" =~ ^[0-9]+$ ]]; then
                     break
@@ -325,7 +414,9 @@ insert_into_table() {
         row_data+=("$value")
     done
     
+    # Check primary key constraint
     if [ ! -z "$primary_key" ]; then
+        # Find primary key column index
         pk_index=-1
         for ((i=0; i<${#header_array[@]}; i++)); do
             if [ "${header_array[i]}" = "$primary_key" ]; then
@@ -337,6 +428,7 @@ insert_into_table() {
         if [ $pk_index -ge 0 ]; then
             pk_value="${row_data[pk_index]}"
             
+            # Check if primary key already exists
             if grep -q "|$pk_value|" "$table_file" 2>/dev/null || grep -q "^$pk_value|" "$table_file" 2>/dev/null || grep -q "|$pk_value$" "$table_file" 2>/dev/null; then
                 echo -e "${RED}Error: Primary key '$pk_value' already exists!${NC}"
                 read -p "Press Enter to continue..."
@@ -345,6 +437,7 @@ insert_into_table() {
         fi
     fi
     
+    # Build the row string
     row_string=""
     for ((i=0; i<${#row_data[@]}; i++)); do
         if [ $i -eq 0 ]; then
@@ -354,13 +447,17 @@ insert_into_table() {
         fi
     done
     
+    # Add the row to the file
     echo "$row_string" >> "$table_file"
     
     echo -e "${GREEN}Data inserted successfully!${NC}"
     read -p "Press Enter to continue..."
 }
 
-# select/display data from table
+
+
+
+# display data  table
 select_from_table() {
     echo ""
     echo -e "${BLUE}Select Data from Table${NC}"
@@ -379,10 +476,12 @@ select_from_table() {
     echo -e "${GREEN}Data in table '$table_name':${NC}"
     echo "=================================="
     
+    # Get headers (line 3)
     headers=$(sed -n '3p' "$table_file")
     echo -e "${BLUE}$headers${NC}"
     echo "=================================="
     
+    # Display all data rows (from line 5 onwards)
     row_count=0
     tail -n +5 "$table_file" | while read -r line; do
         if [ ! -z "$line" ]; then
@@ -391,6 +490,7 @@ select_from_table() {
         fi
     done
     
+    # Count rows
     data_rows=$(tail -n +5 "$table_file" | wc -l)
     echo "=================================="
     echo "Total rows: $data_rows"
@@ -398,70 +498,55 @@ select_from_table() {
     read -p "Press Enter to continue..."
 }
 
-# delete data from table (simple version)
+
+# Function to delete data from table (simple version)
 delete_from_table() {
     echo ""
     echo -e "${BLUE}Delete Data from Table${NC}"
     echo -n "Enter table name: "
-    read table_name
-    
-    table_file="$script_dir/$current_database/$table_name.txt"
-    
+    read table_name 
+     
+   table_file="$script_dir/$current_database/$table_name.txt"   
+   
     if [ ! -f "$table_file" ]; then
         echo -e "${RED}Error: Table '$table_name' does not exist!${NC}"
         read -p "Press Enter to continue..."
         return
-    fi
-    
-    echo ""
-    echo "Current data in table:"
-    headers=$(sed -n '3p' "$table_file")
-    echo -e "${BLUE}$headers${NC}"
-    echo "=================================="
-    
-    row_num=1
-    tail -n +5 "$table_file" | while read -r line; do
-        if [ ! -z "$line" ]; then
-            echo "$row_num. $line"
-            row_num=$((row_num + 1))
-        fi
-    done
-    
+    fi  
+	echo ""
+	# start the file after table headers(first 4 rows) strat from the 5th row
+	tail -n +5 $table_file | cat -n  
+	
     echo ""
     echo -n "Enter row number to delete (0 to cancel): "
     read row_to_delete
-    
+
     if [ "$row_to_delete" = "0" ]; then
         echo "Delete operation cancelled."
         read -p "Press Enter to continue..."
         return
-    fi
+    fi 
+
+    row_to_del=$((row_to_delete + 4))
     
-    total_rows=$(tail -n +5 "$table_file" | grep -c .)
-    if ! [[ "$row_to_delete" =~ ^[0-9]+$ ]] || [ "$row_to_delete" -lt 1 ] || [ "$row_to_delete" -gt "$total_rows" ]; then
+     
+    total_rows=$(wc -l < "$table_file")  
+    # Validate row number
+    if ! [[ "$row_to_del" =~ ^[0-9]+$ ]] || [ "$row_to_del" -lt 1 ] || [ "$row_to_del" -gt "$total_rows" ]; then
         echo -e "${RED}Error: Invalid row number!${NC}"
         read -p "Press Enter to continue..."
         return
     fi
-    
-    temp_file="/tmp/dbms_temp.txt"
-    head -4 "$table_file" > "$temp_file"
-    current_row=1
-    tail -n +5 "$table_file" | while read -r line; do
-        if [ ! -z "$line" ]; then
-            if [ "$current_row" -ne "$row_to_delete" ]; then
-                echo "$line" >> "$temp_file"
-            fi
-            current_row=$((current_row + 1))
-        fi
-    done
-    mv "$temp_file" "$table_file"
+ 
+    sed -i "${row_to_del}d" "$table_file"
     
     echo -e "${GREEN}Row deleted successfully!${NC}"
     read -p "Press Enter to continue..."
 }
 
-# update data in table (simple version)
+
+
+# Function to update data in table (simple version)
 update_table() {
     echo ""
     echo -e "${BLUE}Update Data in Table${NC}"
@@ -475,11 +560,15 @@ update_table() {
         read -p "Press Enter to continue..."
         return
     fi
+    
+    # Show current data first
     echo ""
     echo "Current data in table:"
     headers=$(sed -n '3p' "$table_file")
     echo -e "${BLUE}$headers${NC}"
     echo "=================================="
+    
+    # Show rows with numbers
     row_num=1
     tail -n +5 "$table_file" | while read -r line; do
         if [ ! -z "$line" ]; then
@@ -487,6 +576,7 @@ update_table() {
             row_num=$((row_num + 1))
         fi
     done
+    
     echo ""
     echo -n "Enter row number to update (0 to cancel): "
     read row_to_update
@@ -496,31 +586,45 @@ update_table() {
         read -p "Press Enter to continue..."
         return
     fi
+    
+    # Validate row number
     total_rows=$(tail -n +5 "$table_file" | grep -c .)
     if ! [[ "$row_to_update" =~ ^[0-9]+$ ]] || [ "$row_to_update" -lt 1 ] || [ "$row_to_update" -gt "$total_rows" ]; then
         echo -e "${RED}Error: Invalid row number!${NC}"
         read -p "Press Enter to continue..."
         return
     fi
+    
+    # Get table structure
     headers=$(sed -n '3p' "$table_file")
     types=$(sed -n '4p' "$table_file")
+    
+    # Convert to arrays
     IFS='|' read -ra header_array <<< "$headers"
     IFS='|' read -ra type_array <<< "$types"
+    
+    # Get old row data
     old_row=$(tail -n +5 "$table_file" | sed -n "${row_to_update}p")
     IFS='|' read -ra old_data <<< "$old_row"
     
     echo ""
     echo "Enter new data (press Enter to keep current value):"
+    
+    # Array to store the new row data
     new_row_data=()
     
+    # Get data for each column
     for ((i=0; i<${#header_array[@]}; i++)); do
         while true; do
             echo -n "${header_array[i]} (${type_array[i]}) [current: ${old_data[i]}]: "
             read value
             
+            # If empty, keep old value
             if [ -z "$value" ]; then
                 value="${old_data[i]}"
             fi
+            
+            # Validate data type
             if [ "${type_array[i]}" = "int" ]; then
                 if [[ "$value" =~ ^[0-9]+$ ]]; then
                     break
@@ -538,6 +642,8 @@ update_table() {
         
         new_row_data+=("$value")
     done
+    
+    # Build the new row string
     new_row_string=""
     for ((i=0; i<${#new_row_data[@]}; i++)); do
         if [ $i -eq 0 ]; then
@@ -547,9 +653,13 @@ update_table() {
         fi
     done
     
+    # Create temporary file
     temp_file="/tmp/dbms_temp.txt"
     
+    # Copy header lines
     head -4 "$table_file" > "$temp_file"
+    
+    # Copy data lines with updated row
     current_row=1
     tail -n +5 "$table_file" | while read -r line; do
         if [ ! -z "$line" ]; then
@@ -561,24 +671,33 @@ update_table() {
             current_row=$((current_row + 1))
         fi
     done
+    
+    # Replace original file
     mv "$temp_file" "$table_file"
     
     echo -e "${GREEN}Row updated successfully!${NC}"
     read -p "Press Enter to continue..."
 }
 
+
+
+
+
+
+
+
+# Main program loop
 main() {
-    echo -e "${GREEN}Welcome to Bash DBMS ${NC}"
-    echo -e "Team :"
-    echo -e "1 - Yassen Mohamed Abdulhamid"
-    echo -e "2 - Mostafa Mohamed Abdullatif"
-    echo -e "3 - Abdulrahman Raafat"
-    echo -e "4 - Ahmed Atef"
+    echo -e "${GREEN}" Welcome to our Database Management System."!${NC}"
+    
     echo ""
     read -p "Press Enter to start..."
+    
+    # Main menu loop
     while true; do
         show_main_menu
         read choice
+        
         case $choice in
             1) create_database ;;
             2) list_databases ;;
@@ -597,6 +716,5 @@ main() {
     done
 }
 
+# Start the program
 main
-
-
