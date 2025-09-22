@@ -686,8 +686,8 @@ update_table() {
 
 # قيمة البرنامج الاساسية
 main() {
-    echo -e "${GREEN}Welcome to Simple Bash DBMS!${NC}"
-    echo "This is a beginner-friendly database management system."
+    echo -e "${GREEN}Welcome to Bash DBMS!${NC}"
+    echo "Team 2 Bash DBMS."
     echo ""
     read -p "Press Enter to start..."
     
@@ -702,7 +702,7 @@ main() {
             3) connect_database ;;
             4) drop_database ;;
             5) 
-                echo -e "${GREEN}Thank you for using Simple Bash DBMS!${NC}"
+                echo -e "${GREEN}Thank you for using Bash DBMS!${NC}"
                 echo "Goodbye!"
                 exit 0
                 ;;
@@ -716,3 +716,4 @@ main() {
 
 # بنبداء البرنامج
 main
+
