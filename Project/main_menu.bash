@@ -42,56 +42,61 @@ create_database() {
 
     read -p "Press Enter to continue..."
 }
+check=0   # ده فاريابل جلوبال يا مصطفي عشان نعمل فاليديت للإكزت لما مفيش داتابيز
 
-# بيعرض كل الداتا بيز الموجوده
+# بيفحص وجود قواعد بيانات ويحدث قيمة check
 list_databases() {
     echo ""
     echo -e "${BLUE}Available Databases:${NC}"
     echo "===================="
 
     db_count=0
-    # بيلف على كل الفولدرات اللي في المسار الحالي
+    check=0  
+
     for dir in */; do
         if [ -d "$dir" ]; then
             db_count=$((db_count + 1))
-            echo "$db_count. ${dir%/}" # بيشيل الشرطة المايلة الزيادة اللي بتظهر في الآخر
+            echo "$db_count. ${dir%/}"
         fi
     done
 
-    # بيشيك لو مفيش أي داتا بيز موجودة
     if [ $db_count -eq 0 ]; then
         echo "No databases found!"
+        check=1
     fi
 
     read -p "Press Enter to continue..."
 }
 
-# بيوصل لداتا بيز موجودة
+# بيوصل لقاعدة بيانات
 connect_database() {
     echo ""
     list_databases
+    
+    if [ $check -eq 1 ]; then
+        echo -e "${RED}No databases available to connect!${NC}"
+        read -p "Press Enter to continue..."
+        return
+    fi
+
     echo -e "${BLUE}Connect to Database:${NC}"
     echo -n "Enter database name: "
     read db_name
 
-    # بيشيك لو اسم الداتا بيز فاضي
     if [ -z "$db_name" ]; then
         echo -e "${RED}Error: Database name cannot be empty!${NC}"
         read -p "Press Enter to continue..."
         return
     fi
 
-    # بيشيك لو الداتا بيز موجودة
     if [ -d "$script_dir/$db_name" ]; then
         current_database="$db_name"
         echo -e "${GREEN}Connected to database '$db_name'${NC}"
         read -p "Press Enter to continue..."
 
-        # بيظهر قائمة الداتا بيز لحد ما المستخدم يرجع للقائمة الرئيسية
         while true; do
             show_database_menu
             read choice
-
             case $choice in
                 1) create_table ;;
                 2) list_tables ;;
@@ -110,15 +115,21 @@ connect_database() {
     fi
 }
 
-# بيمسح داتا بيز
+# بيمسح قاعدة بيانات
 drop_database() {
     echo ""
     list_databases
+    
+    if [ $check -eq 1 ]; then
+        echo -e "${RED}No databases available to drop!${NC}"
+        read -p "Press Enter to continue..."
+        return
+    fi
+
     echo -e "${BLUE}Drop Database:${NC}"
     echo -n "Enter database name to delete: "
     read db_name
 
-    # بيشيك لو الداتا بيز موجودة
     if [ -d "$script_dir/$db_name" ]; then
         echo -e "${RED}WARNING: This will delete the entire database and all its data!${NC}"
         echo -n "Are you sure? (yes/no): "
