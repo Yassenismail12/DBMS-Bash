@@ -2,24 +2,24 @@
                                                             ====================== 
 
 
-==================================================
-
-
 show_main_menu()
+=================
 
 SHOW ME MAIN FUNCTION CAN DO IN DATABAS
 
 
-============================================
+---------------------------------------------------------------------
 
 show_database_menu()
+=================
 
 i use this function when i connect to database that i created
 
 
-===============================================
+---------------------------------------------------------------------
 
 create_database()
+=================
 
 1-enter db_name
 
@@ -29,12 +29,11 @@ create_database()
 
 4-give me massege that dir created successfully
 
-================================================
+---------------------------------------------------------------------
 
 list_databases()
-
+=================
 1-enter database name 
-
 
 2-check if database_name is empty
 
@@ -42,11 +41,10 @@ list_databases()
 
 loop in current_db to git directry
 
-========================================
+---------------------------------------------------------------------
 
 connect_database()
-
-
+=================
 1-enter db_name that be created in (create database)
 
 2-check it is directry
@@ -67,18 +65,18 @@ connect_database()
 5-if current_db is not exiest
 
 
-==================================
+---------------------------------------------------------------------
 
 
 drop_database()
-
-
+=================
 1-enter db_name
 
 2-if db_name is exist :give me warning that it wil be delete entire data and all date
 
 3-then delete data_base
 
+---------------------------------------------------------------------
 
 
 Function create_table
