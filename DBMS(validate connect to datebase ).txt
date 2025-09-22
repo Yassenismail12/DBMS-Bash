@@ -1,5 +1,5 @@
 #!/bin/bash
-ion: 1.0
+
 
 # Colors for better display (optional)
 RED='\033[0;31m'
@@ -458,7 +458,7 @@ insert_into_table() {
 
 
 
-# Function to select/display data from table
+# select بنظهر الداتا من التابل
 select_from_table() {
     echo ""
     echo -e "${BLUE}Select Data from Table${NC}"
@@ -482,7 +482,7 @@ select_from_table() {
     echo -e "${BLUE}$headers${NC}"
     echo "=================================="
     
-    # Display all data rows (from line 5 onwards)
+    # بنظهر الداتا من السطر ال5 
     row_count=0
     tail -n +5 "$table_file" | while read -r line; do
         if [ ! -z "$line" ]; then
@@ -500,7 +500,7 @@ select_from_table() {
 }
 
 
-# Function to delete data from table (simple version)
+# بنمسح من التابل 
 delete_from_table() {
     echo ""
     echo -e "${BLUE}Delete Data from Table${NC}"
@@ -515,7 +515,7 @@ delete_from_table() {
         return
     fi  
 	echo ""
-	# start the file after table headers(first 4 rows) strat from the 5th row
+	# بنمسح من بعد السطر ال4 
 	tail -n +5 $table_file | cat -n  
 	
     echo ""
@@ -545,7 +545,7 @@ delete_from_table() {
 
 
 
-# Function to update data in table (simple version)
+# بنحدث الداتا الف التابل 
 update_table() {
     echo ""
     echo -e "${BLUE}Update Data in Table${NC}"
@@ -567,7 +567,7 @@ update_table() {
     echo -e "${BLUE}$headers${NC}"
     echo "=================================="
     
-    # Show rows with numbers
+    # بنظهر السطور بالارقام
     row_num=1
     tail -n +5 "$table_file" | while read -r line; do
         if [ ! -z "$line" ]; then
@@ -586,7 +586,7 @@ update_table() {
         return
     fi
     
-    # Validate row number
+    # بنفالديت رقم السطر
     total_rows=$(tail -n +5 "$table_file" | grep -c .)
     if ! [[ "$row_to_update" =~ ^[0-9]+$ ]] || [ "$row_to_update" -lt 1 ] || [ "$row_to_update" -gt "$total_rows" ]; then
         echo -e "${RED}Error: Invalid row number!${NC}"
@@ -594,36 +594,36 @@ update_table() {
         return
     fi
     
-    # Get table structure
+    # بنجيب استراكشر التابل
     headers=$(sed -n '3p' "$table_file")
     types=$(sed -n '4p' "$table_file")
     
-    # Convert to arrays
+    # بنحولهم ل array
     IFS='|' read -ra header_array <<< "$headers"
     IFS='|' read -ra type_array <<< "$types"
     
-    # Get old row data
+   
     old_row=$(tail -n +5 "$table_file" | sed -n "${row_to_update}p")
     IFS='|' read -ra old_data <<< "$old_row"
     
     echo ""
     echo "Enter new data (press Enter to keep current value):"
     
-    # Array to store the new row data
+    # Array علشان نخزن فيه الجديد
     new_row_data=()
     
-    # Get data for each column
+    # بنلوب علشان نجيب الداتا لكل عمود
     for ((i=0; i<${#header_array[@]}; i++)); do
         while true; do
             echo -n "${header_array[i]} (${type_array[i]}) [current: ${old_data[i]}]: "
             read value
             
-            # If empty, keep old value
+            # لو المستخدم مدخلش حاجة جديدة بنسبها زي ماهي 
             if [ -z "$value" ]; then
                 value="${old_data[i]}"
             fi
             
-            # Validate data type
+            # بنفالديت الدات تايب
             if [ "${type_array[i]}" = "int" ]; then
                 if [[ "$value" =~ ^[0-9]+$ ]]; then
                     break
@@ -652,10 +652,10 @@ update_table() {
         fi
     done
     
-    # Create temporary file
+    # بنعمل ملف مؤقت
     temp_file="/tmp/dbms_temp.txt"
     
-    # Copy header lines
+    # بنعمل نسخة للهيدر 
     head -4 "$table_file" > "$temp_file"
     
     # Copy data lines with updated row
