@@ -264,36 +264,50 @@ select_from_table() {
     table_file="$script_dir/$current_database/$table_name.txt"
 
     if [ ! -f "$table_file" ]; then
-        echo -e "${RED}Error: Table '$table_name' does not exist!${NC}"
-        read -p "Press Enter to continue..."
+        echo -e "${RED}Table '$table_name' does not exist!${NC}"
         return
     fi
 
-    echo ""
-    echo -e "${GREEN}Data in table '$table_name':${NC}"
-    echo "=================================="
-
-    # بيعرض الهيدرز الأعمدة
     headers=$(sed -n '3p' "$table_file")
-    echo -e "${BLUE}$headers${NC}"
-    echo "=================================="
 
-    row_count=0
-    # بيعرض كل الروز بعد الصف الرابع 
-    tail -n +5 "$table_file" | while read -r line; do
-        if [ ! -z "$line" ]; then
-            echo "$line"
-            row_count=$((row_count + 1))
-        fi
-    done
+    echo ""
+    echo "How do you want to display the data?"
+    echo "1) Show all rows"
+    echo "2) Show specific range of rows"
+    echo -n "Choose an option: "
+    read choice
 
-    # بيحسب عدد الروز الإجمالي
-    data_rows=$(tail -n +5 "$table_file" | wc -l)
-    echo "=================================="
-    echo "Total rows: $data_rows"
+    case $choice in
+        1)
+            echo ""
+            echo -e "${YELLOW}All Data:${NC}"
+            echo "$headers"
+            tail -n +5 "$table_file" | nl -w2 -s". "
+            ;;
+        2)
+            echo -n "Enter start row number: "
+            read start
+            echo -n "Enter end row number: "
+            read end
 
+            if ! [[ "$start" =~ ^[0-9]+$ && "$end" =~ ^[0-9]+$ && $start -le $end ]]; then
+                echo -e "${RED}Invalid range!${NC}"
+                return
+            fi
+
+            echo ""
+            echo -e "${YELLOW}Rows $start to $end:${NC}"
+            echo "$headers"
+            tail -n +5 "$table_file" | sed -n "${start},${end}p" | nl -w2 -s". "
+            ;;
+        *)
+            echo -e "${RED}Invalid choice!${NC}"
+            ;;
+    esac
+    
     read -p "Press Enter to continue..."
 }
+
 
 # بيمسح الداتا من الجدول
 delete_from_table() {
