@@ -1,5 +1,4 @@
 #!/bin/bash
-ion: 1.0
 
 # colors 
 RED='\033[0;31m'
