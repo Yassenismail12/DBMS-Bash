@@ -5,7 +5,7 @@
 show_main_menu()
 =================
 
-SHOW ME MAIN FUNCTION CAN DO IN DATABAS
+Display the Main Functions of the Datebases
 
 
 ---------------------------------------------------------------------
@@ -13,8 +13,7 @@ SHOW ME MAIN FUNCTION CAN DO IN DATABAS
 show_database_menu()
 =================
 
-i use this function when i connect to database that i created
-
+Display the Main Functions of tables of the connected Datebase  
 
 ---------------------------------------------------------------------
 
