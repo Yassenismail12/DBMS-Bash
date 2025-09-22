@@ -1,6 +1,42 @@
-                                                       ***Bash Database Management System
-                                                            ====================== 
+# Bash DBMS
 
+This project is a simple **Database Management System (DBMS)** written entirely in **Bash**.  
+It is a command-line tool that allows you to manage databases and tables directly from your terminal.  
+Databases are stored as directories on your file system, and tables are stored as plain text files within those directories.
+
+---
+
+## Features
+
+### Database Operations
+- Create, list, connect to, and drop databases.
+
+### Table Operations
+- Create, list, and drop tables within a connected database.
+- Define column names and data types (`int` or `str`).
+- Specify a primary key for each table to ensure data uniqueness.
+
+### Data Manipulation
+- Insert new records into a table.
+- Select and display all records from a table.
+- Delete a specific record by its row number.
+- Update an existing record's data.
+
+---
+
+## Prerequisites
+To run this application, you will need:
+- A Unix-like operating system (e.g., Linux, macOS)
+- A Bash shell
+
+---
+
+## Installation & Usage
+
+1. Ensure all three script files (`main.bash`, `main_menu.bash`, and `db_menu.bash`) are in the same directory.  
+2. Make the scripts executable:
+   ```bash
+   chmod +x main.bash main_menu.bash db_menu.bash
 
 show_main_menu()
 =================
