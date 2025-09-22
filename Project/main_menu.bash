@@ -68,7 +68,7 @@ list_databases() {
 
 # بيوصل لداتا بيز موجودة
 connect_database() {
-    echo ""
+    list_databases
     echo -e "${BLUE}Connect to Database:${NC}"
     echo -n "Enter database name: "
     read db_name
