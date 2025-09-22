@@ -1,17 +1,17 @@
 #!/bin/bash
 ion: 1.0
 
-# Colors for better display (optional)
+# colors 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Global variables
+
 current_database=""
 script_dir=$(pwd) # Get current directory where script is located
 
-# Func to display the main menu
+# diplay the  main menu
 show_main_menu() {
     clear
     echo "=================================="
